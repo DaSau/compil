@@ -106,20 +106,22 @@ rule token = parse
 	| _ as c		{ raise (Lexing_error ("Caractere illegal : "^ Char.escaped c)) }
 and comment = parse
 	| "*/"  { token lexbuf }
+	| '\n'	{ newline lexbuf ; comment lexbuf }
 	| eof   { raise (Lexing_error "Commentaire non termine") }
 	| _     { comment lexbuf }
 
 and comment_line = parse
-	| '\n' 	{ newline lexbuf ; token lexbuf }
+	| '\n' 	{ newline lexbuf ; token lexbuf}
 	| eof 	{ EOF }
-	| _ 	{ comment_line lexbuf }
+	| _ 	{ comment_line lexbuf}
 
 (*Si on veut optimiser, on peut concaténer à l'aide du module buffer,
 plus rapide. A voir plus tard *)
 and r_car = parse 
 	| "\\\\" | "\\\"" | "\\n" | "\\t" as s	
 					{ let suite = r_car lexbuf in s ^ suite } 
-	| '\n' | '\t' 		as c	{ let suite = r_car lexbuf in (Char.escaped c) ^ suite }
+	| '\t' 			as c	{ let suite = r_car lexbuf in (Char.escaped c) ^ suite }
+	| '\n' 			as c	{ newline lexbuf ; let suite = r_car lexbuf in (Char.escaped c) ^ suite }
 	| '\\'		 		{ raise (Lexing_error ("Caractere illegal" ^ Char.escaped '\\')) } 
 	| '"'				{ String.make 0 'z' }	
 	| _			as c	{ let n = Char.code c in 
