@@ -98,36 +98,41 @@ decl:
 	| m = methode  	{ DeclM m  }
 
 
-expr:
+desc:
 	| e = CONST_INT				{ Eint e }
 	| s = CONST_STR				{ Echaine s }
-	| THIS						{ This }
-	| NULL						{ Null }
-	| TRUE						{ Ebool true }
-	| FALSE						{ Ebool false }
+	| THIS					{ This }
+	| NULL					{ Null }
+	| TRUE					{ Ebool true }
+	| FALSE					{ Ebool false }
 	| OPAR; CPAR				{ Eunit }
-	| OPAR; e = expr; CPAR 		{ e }	
-	| a = acces				 	{ Eacc a }
-	| a = acces; AFF; e = expr	{ Eaff (a,e) }
+	| OPAR; e = expr; CPAR 			{ e.desc }	
+	| a = acces			 	{ Eacc a }
+	| a = acces; AFF; e = expr		{ Eaff (a,e) }
 	| a = acces; at = arg_typ; OPAR; l = separated_list(COMMA, expr); CPAR
-								{ Emet (a,at,l) }
+						{ Emet (a,at,l) }
 	| NEW; id = IDENT; at = arg_typ; OPAR; l = separated_list(COMMA, expr) ; CPAR
-								{ Edecl (id, at, l) } 
+						{ Edecl (id, at, l) } 
 	| NOT; e = expr				{ Eneg e }
 	| SUB; e = expr				{ Eopp e } %prec USUB
 	| e1 = expr; o = binop; e2 = expr	
-								{ Ebinop (e1, o, e2) } 
+						{ Ebinop (e1, o, e2) } 
 	| IF; OPAR; e1 = expr; CPAR; e2 = expr
-								{ Opif (e1, e2, Eunit) } %prec IF
+						{ Opif (e1, e2, { desc = Eunit ; loc = e2.loc } ) } %prec IF
 	| IF; OPAR; e1 = expr; CPAR; e2 = expr; ELSE; e3 = expr
-								{ Opif (e1, e2, e3) }
+						{ Opif (e1, e2, e3) }
 	| WHILE; OPAR; e1 = expr; CPAR; e2 = expr
-								{ Opwhile (e1, e2) } %prec WHILE
+						{ Opwhile (e1, e2) } %prec WHILE
 	| RETURN; e = expr		 	{ Opreturn (Some e) }
-	| RETURN 					{ Opreturn None}
+	| RETURN 				{ Opreturn None}
 	| PRINT; OPAR; e = expr; CPAR
-								{ Opprint e }
-	| b = bloc 					{ Ebloc b }
+						{ Opprint e }
+	| b = bloc 				{ Ebloc b }
+
+
+expr: 
+	| d = desc	{ { desc = d; loc = $startpos, $endpos } }
+
 
 
 
