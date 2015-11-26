@@ -4,7 +4,7 @@ type signe = Plus | Moins
 type ident = string
 type chaine = string (*pas vraiment, mais à priori osef pour le typage et la compil*)
 
-/*test*/
+
 
 type decl = DeclV of var | DeclM of methode
 
