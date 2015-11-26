@@ -24,21 +24,26 @@ and typ = T of (ident * arg_type)
 
 and arg_type = typ list option
 
-and expr = 	Eint of int | Echaine of chaine | Ebool of bool | Eunit
-			| This | Null
-			| Eexp of expr
-			| Eacc of acces
-			| Eaff of acces * expr (*affectation*)
-			| Emet of acces * arg_type * expr list
-			| Edecl of ident * arg_type * expr list (*déclaration*)
-			| Eneg of expr
-			| Eopp of expr
-			| Ebinop of expr * op * expr
-			| Opif of expr * expr * expr (*le deuxième vaut unit si pas de else*)
-			| Opwhile of expr * expr
-			| Opreturn of (expr option)
-			| Opprint of expr
-			| Ebloc of bloc
+and expr = { desc: desc ; loc : Lexing.position * Lexing.position }
+
+and desc = 	| Eint of int 
+		| Echaine of chaine 
+		| Ebool of bool 
+		| Eunit
+		| This | Null
+		| Eexp of expr
+		| Eacc of acces
+		| Eaff of acces * expr (*affectation*)
+		| Emet of acces * arg_type * expr list
+		| Edecl of ident * arg_type * expr list (*déclaration*)
+		| Eneg of expr
+		| Eopp of expr
+		| Ebinop of expr * op * expr
+		| Opif of expr * expr * expr (*le deuxième vaut unit si pas de else*)
+		| Opwhile of expr * expr
+		| Opreturn of (expr option)
+		| Opprint of expr
+		| Ebloc of bloc
 
 and tbloc = TbV of var | TbE of expr 
 
