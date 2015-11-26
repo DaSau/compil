@@ -61,6 +61,12 @@
 		",", COMMA;
 		".", DOT;
 	]
+	
+	  /* fonction à appeler à chaque retour chariot (caractère '\n') */
+	let newline lexbuf =
+    		let pos = lexbuf.lex_curr_p in
+    		lexbuf.lex_curr_p <-
+      		{ pos with pos_lnum = pos.pos_lnum + 1; pos_bol = pos.pos_cnum }
 }
 
 
@@ -81,7 +87,8 @@ let chaine = "\"" car* "\""
 
 
 rule token = parse
-	| [' ' '\t' '\n']+ 	{ token lexbuf }
+	| [' ' '\t']+ 		{ token lexbuf }
+	| '\n'   		{ newline lexbuf ; token lexbuf }
 	| "/*"             	{ comment lexbuf }
 	| "//"	 		{ comment_line lexbuf}
 	| ident as s 		{ try Hashtbl.find keyword s with Not_found -> IDENT s}
@@ -103,9 +110,9 @@ and comment = parse
 	| _     { comment lexbuf }
 
 and comment_line = parse
-	| '\n' 	{token lexbuf}
+	| '\n' 	{ newline lexbuf ; token lexbuf }
 	| eof 	{ EOF }
-	| _ 	{ comment_line lexbuf}
+	| _ 	{ comment_line lexbuf }
 
 (*Si on veut optimiser, on peut concaténer à l'aide du module buffer,
 plus rapide. A voir plus tard *)
